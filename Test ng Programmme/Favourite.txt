@@ -1,0 +1,225 @@
+import React, { Component } from "react";
+import {
+	Container,
+	Content,
+	Button,
+	Header,
+	Text,
+	Item,
+	List,
+	items,
+	ListItem,
+	Input,
+	Thumbnail,	
+	Body,
+	Badge,
+	Left,
+	Right , Grid, Col, Row, 
+} from "native-base";
+import { StackNavigator,styleSheet } from "react-navigation";
+//import BlinkView from "react-native-blink-view";
+import { StyleSheet, SafeAreaView, View ,AsyncStorage} from "react-native";
+import Icon from "react-native-vector-icons/Ionicons";
+//import Global from "../../global/Global.js";
+
+export default class Favourite extends Component {
+	static navigationOptions = {
+		header: null,
+		tabBarIcon: ({ tintColor }) => (
+			<Icon
+				name="ios-notifications"
+				style={{ color: tintColor, fontSize: 22 }}
+			/>
+		)
+	};
+	constructor(props) {
+		super(props);
+		this.state = {
+			results: {
+				items: []
+			},
+			runnerId: ""
+		};
+	}
+	componentDidMount() {
+	this.getRunnerOrder(112);
+	}
+
+
+	/*
+    Get runner order
+   */
+	getRunnerOrder = runnerId => {
+		fetch("http://13.232.144.183:3000"+ "/order/details/runner/" + runnerId)
+			.then(response => response.json())
+			.then(responseJson => {
+				this.setState({
+					results: responseJson
+				});
+
+				if (this.state.results.length == undefined) {
+					this.state.results.length = 0;
+				}
+				console.log("Res = " + JSON.stringify(this.state.results));
+				if (this.state.results.length == 0) {
+					alert("No orders yet");
+				}
+			})
+			.catch(error => {
+				this.setState({
+					loading: false
+				});
+			});
+	};
+
+
+	/*
+      navigate to order details page
+	*/
+	goToOrderDetailsPage = (item) => {
+      this.props.navigation.navigate('OrderNotificationDetails', {
+              orderId: item.Order_Id,
+              flag:'notification',
+            });
+	}
+
+	render() {
+		var items = this.state.results;
+		return (
+			<Container>
+				<Header>
+					<Left>
+						<Button transparent
+							title="Go back"
+							onPress={() => this.props.navigation.goBack()}
+						>
+							<Icon
+								name="ios-arrow-back"
+								size={25}
+								color="#fff"
+							/>
+						</Button>
+					</Left>
+					<Body>
+						<Text
+							style={{
+								color: "#fff",
+								textAlign: "center"
+							}}
+						>
+							Order Summery
+						</Text>
+					</Body>
+					<Right />
+				</Header>
+
+				<Content>
+					<List
+						dataArray={items}
+						renderRow={item => (
+							<ListItem avatar>
+							
+								<Body>
+								<Grid>
+									<Row>
+									<Col style={{ width: 100 }}>
+										<Text style={styles.Text}>Order Id : </Text>
+									</Col>
+									<Col>
+										<Text style={styles.Text}>SFOM-{item.Order_Id}</Text>
+									</Col>
+									</Row>
+
+									<Row>
+									<Col style={{ width: 100 }}>
+										<Text style = {{fontSize: 17, fontWeight:'bold'}}>Delivery Address :  </Text>
+									</Col>
+									<Col>
+										<Text>{item.Delivery_Address}</Text>
+									</Col>
+									</Row>
+
+									<Row>
+									<Col style={{ width: 100 }}>
+										<Text style={{fontSize: 17 , fontWeight:'bold'}}>Delivery Date : </Text>
+									</Col>
+									<Col>
+										<Text>{item.Delivery_Date}</Text>
+									</Col>
+									</Row>
+
+									<Row>
+									<Col style={{ width: 100 }}>
+										<Text style={{fontSize: 17 , fontWeight:'bold'}}>Delivery Time : </Text>
+									</Col>
+									<Col>
+										<Text>{item.Delivery_Time}</Text>
+									</Col>
+									</Row>
+									<Right>
+								                          
+                                 {
+                                   	item.isOrderRunning? <Text style = {{color:'blue', justifyContent:'center', marginLeft:230}}>Running</Text>:<Thumbnail  square source={require('../images/completed.png')}  style={{width:140, height:43}}/>
+                                  }
+                                  </Right>
+
+								</Grid>
+
+								</Body>
+									<Button transparent>						
+					              <Icon
+					                name="ios-arrow-forward"
+					                size={35}
+					                color = "#6b3e26"
+					                onPress = {this.goToOrderDetailsPage.bind(this,item)}
+					                style={{ marginLeft: 0, marginRight: 20,  }}
+					              />
+					             </Button>
+
+								
+							</ListItem>
+
+						)}
+					/>
+				</Content>
+			</Container>
+		);
+	}
+}
+
+const styles = StyleSheet.create({
+
+	Container:{
+		flex:1,
+		justifyContent :'center',
+		alignItems:'center',
+	},
+
+	Body:{
+		fontSize:15 ,
+		fontWeight:'bold',
+	},
+
+	Text:{
+		lineHeight: 20,
+		fontWeight:'bold',
+		color : "#ff9b00",
+		fontSize:18,
+	},
+
+	ListItem:{
+		width: '100%', 
+		marginLeft: 0,
+		paddingLeft: 0, 
+		paddingRight: 0, 
+		marginRight: 0,
+	},
+
+	button:{
+	  backgroundColor: '#00aeef',
+      borderColor: 'black',
+      borderWidth: 5,
+      borderRadius: 15  
+    },
+
+});

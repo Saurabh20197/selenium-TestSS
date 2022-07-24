@@ -1,0 +1,14 @@
+CREATE TABLE address_final(
+AddrId BIGINT(20) NOT NULL PRIMARY KEY AUTO_INCREMENT,
+User_Id BIGINT(20),
+FlatNo int(4),
+ApartmentName VARCHAR(200),
+AddressDetails VARCHAR(500),
+Landmark VARCHAR(100),
+MobileNo INT(13),
+City bigint(20),
+Pincode INT(6),
+AddressType varchar(10),
+
+FOREIGN KEY( User_Id ) REFERENCES user_final(User_Id )
+);
